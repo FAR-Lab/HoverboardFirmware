@@ -252,57 +252,57 @@ void EXTI1_IRQHandler(void)
 	__HAL_GPIO_EXTI_CLEAR_IT(GPIO_PIN_1);
 }
 
-/**
- * @brief This function handles EXTI line[15:10] interrupts.
- */
-void EXTI15_10_IRQHandler(void)
-{
-	if((__HAL_GPIO_EXTI_GET_IT(GPIO_PIN_10) != RESET)||
-			(__HAL_GPIO_EXTI_GET_IT(GPIO_PIN_11) != RESET)||
-			(__HAL_GPIO_EXTI_GET_IT(GPIO_PIN_12) != RESET))
-	{
-		HALL_ISR_Callback(&motor_R);
-
-		__HAL_GPIO_EXTI_CLEAR_IT(GPIO_PIN_10);
-		__HAL_GPIO_EXTI_CLEAR_IT(GPIO_PIN_11);
-		__HAL_GPIO_EXTI_CLEAR_IT(GPIO_PIN_12);
-	}
-}
+///**
+// * @brief This function handles EXTI line[15:10] interrupts.
+// */
+//void EXTI15_10_IRQHandler(void)
+//{
+//	if((__HAL_GPIO_EXTI_GET_IT(GPIO_PIN_10) != RESET)||
+//			(__HAL_GPIO_EXTI_GET_IT(GPIO_PIN_11) != RESET)||
+//			(__HAL_GPIO_EXTI_GET_IT(GPIO_PIN_12) != RESET))
+//	{
+//		HALL_ISR_Callback(&motor_R);
+//
+//		__HAL_GPIO_EXTI_CLEAR_IT(GPIO_PIN_10);
+//		__HAL_GPIO_EXTI_CLEAR_IT(GPIO_PIN_11);
+//		__HAL_GPIO_EXTI_CLEAR_IT(GPIO_PIN_12);
+//	}
+//}
 
 /**
  * @brief This function handles EXTI line[9:5] interrupts.
  */
 void EXTI9_5_IRQHandler(void)
 {
-	if((__HAL_GPIO_EXTI_GET_IT(GPIO_PIN_5) != RESET)||
-			(__HAL_GPIO_EXTI_GET_IT(GPIO_PIN_6) != RESET)||
-			(__HAL_GPIO_EXTI_GET_IT(GPIO_PIN_7) != RESET))
+	if((__HAL_GPIO_EXTI_GET_IT(GPIO_PIN_6) != RESET)||
+			(__HAL_GPIO_EXTI_GET_IT(GPIO_PIN_7) != RESET)||
+			(__HAL_GPIO_EXTI_GET_IT(GPIO_PIN_8) != RESET))
 	{
-		HALL_ISR_Callback(&motor_L);
+		HALL_ISR_Callback(&motor_R);
 
-		__HAL_GPIO_EXTI_CLEAR_IT(GPIO_PIN_5);
 		__HAL_GPIO_EXTI_CLEAR_IT(GPIO_PIN_6);
 		__HAL_GPIO_EXTI_CLEAR_IT(GPIO_PIN_7);
+		__HAL_GPIO_EXTI_CLEAR_IT(GPIO_PIN_8);
 	}
 }
 
 /**
- * @brief This function handles TIM7 interrupt.
+ * @brief This function handles TIM4 interrupt.
  */
-void TIM7_IRQHandler(void)
+void TIM4_IRQHandler(void)
 {
 	HAL_TIM_IRQHandler(&(motor_R.setup.htim_duty));
 	Duty_ISR_Callback(&motor_R);
 }
 
-/**
- * @brief This function handles TIM6 interrupt.
- */
-void TIM6_IRQHandler(void)
-{
-	HAL_TIM_IRQHandler(&(motor_L.setup.htim_duty));
-	Duty_ISR_Callback(&motor_L);
-}
+///**
+// * @brief This function handles TIM6 interrupt.
+// */
+//void TIM6_IRQHandler(void)
+//{
+//	HAL_TIM_IRQHandler(&(motor_L.setup.htim_duty));
+//	Duty_ISR_Callback(&motor_L);
+//}
 
 /**
  * @brief This function handles TIM3 interrupt.
@@ -313,14 +313,14 @@ void TIM3_IRQHandler(void)
 	Speed_ISR_Callback(&motor_R);
 }
 
-/**
- * @brief This function handles TIM4 interrupt.
- */
-void TIM4_IRQHandler(void)
-{
-	HAL_TIM_IRQHandler(&(motor_L.setup.htim_speed));
-	Speed_ISR_Callback(&motor_L);
-}
+///**
+// * @brief This function handles TIM4 interrupt.
+// */
+//void TIM4_IRQHandler(void)
+//{
+//	HAL_TIM_IRQHandler(&(motor_L.setup.htim_speed));
+//	Speed_ISR_Callback(&motor_L);
+//}
 
 /* USER CODE BEGIN 1 */
 

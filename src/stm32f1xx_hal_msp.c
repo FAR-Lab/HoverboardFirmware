@@ -34,6 +34,7 @@
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f1xx_hal.h"
 #include "adc.h"
+#include "debug.h"
 
 extern struct ADC adc_L;
 extern struct ADC adc_R;
@@ -77,6 +78,9 @@ void HAL_MspInit(void)
 	 */
 	// __HAL_AFIO_REMAP_SWJ_DISABLE();
 
+	/* Enable SW-DP, but disable JTAG so we can use pin PA15 as GPIO. */
+	__HAL_AFIO_REMAP_SWJ_NOJTAG();
+
 	/* USER CODE BEGIN MspInit 1 */
 
 	/* USER CODE END MspInit 1 */
@@ -95,13 +99,12 @@ void HAL_ADC_MspInit(ADC_HandleTypeDef* hadc)
 		__HAL_RCC_ADC1_CLK_ENABLE();
 
 		/**ADC1 GPIO Configuration
-			PC0     ------> ADC1_IN10
-			PC1     ------> ADC1_IN11
-			PC2     ------> ADC1_IN12
+		 *  PA6     ------> ADC1_IN6
+		 *  PA1     ------> ADC1_IN1
 		 */
-		GPIO_InitStruct.Pin = GPIO_PIN_1|GPIO_PIN_2;  //GPIO_PIN_0
+		GPIO_InitStruct.Pin = GPIO_PIN_1|GPIO_PIN_6;  //GPIO_PIN_0
 		GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
-		HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
+		HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
 		/* Peripheral DMA init*/
 
@@ -115,6 +118,7 @@ void HAL_ADC_MspInit(ADC_HandleTypeDef* hadc)
 		adc_R.setup.hdma_adc.Init.Priority = DMA_PRIORITY_LOW;
 		if (HAL_DMA_Init(&(adc_R.setup.hdma_adc)) != HAL_OK)
 		{
+			buzzer_two_beeps();
 			error_handler();
 		}
 
@@ -124,42 +128,42 @@ void HAL_ADC_MspInit(ADC_HandleTypeDef* hadc)
 
 		/* USER CODE END ADC1_MspInit 1 */
 	}
-	else if(hadc->Instance==ADC3)
-	{
-		/* USER CODE BEGIN ADC3_MspInit 0 */
-
-		/* USER CODE END ADC3_MspInit 0 */
-		/* Peripheral clock enable */
-		__HAL_RCC_ADC3_CLK_ENABLE();
-
-		/**ADC3 GPIO Configuration
-    		PC0     ------> ADC3_IN10
-		 */
-		GPIO_InitStruct.Pin = GPIO_PIN_0;
-		GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
-		HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
-
-		/* Peripheral DMA init*/
-
-		adc_L.setup.hdma_adc.Instance = DMA2_Channel5;
-		adc_L.setup.hdma_adc.Init.Direction = DMA_PERIPH_TO_MEMORY;
-		adc_L.setup.hdma_adc.Init.PeriphInc = DMA_PINC_DISABLE;
-		adc_L.setup.hdma_adc.Init.MemInc = DMA_MINC_ENABLE;
-		adc_L.setup.hdma_adc.Init.PeriphDataAlignment = DMA_PDATAALIGN_HALFWORD;
-		adc_L.setup.hdma_adc.Init.MemDataAlignment = DMA_MDATAALIGN_HALFWORD;
-		adc_L.setup.hdma_adc.Init.Mode = DMA_CIRCULAR;
-		adc_L.setup.hdma_adc.Init.Priority = DMA_PRIORITY_LOW;
-		if (HAL_DMA_Init(&(adc_L.setup.hdma_adc)) != HAL_OK)
-		{
-			error_handler();
-		}
-
-		__HAL_LINKDMA(hadc,DMA_Handle,adc_L.setup.hdma_adc);
-
-		/* USER CODE BEGIN ADC3_MspInit 1 */
-
-		/* USER CODE END ADC3_MspInit 1 */
-	}
+//	else if(hadc->Instance==ADC3)
+//	{
+//		/* USER CODE BEGIN ADC3_MspInit 0 */
+//
+//		/* USER CODE END ADC3_MspInit 0 */
+//		/* Peripheral clock enable */
+//		__HAL_RCC_ADC3_CLK_ENABLE();
+//
+//		/**ADC3 GPIO Configuration
+//    		PC0     ------> ADC3_IN10
+//		 */
+//		GPIO_InitStruct.Pin = GPIO_PIN_0;
+//		GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
+//		HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
+//
+//		/* Peripheral DMA init*/
+//
+//		adc_L.setup.hdma_adc.Instance = DMA2_Channel5;
+//		adc_L.setup.hdma_adc.Init.Direction = DMA_PERIPH_TO_MEMORY;
+//		adc_L.setup.hdma_adc.Init.PeriphInc = DMA_PINC_DISABLE;
+//		adc_L.setup.hdma_adc.Init.MemInc = DMA_MINC_ENABLE;
+//		adc_L.setup.hdma_adc.Init.PeriphDataAlignment = DMA_PDATAALIGN_HALFWORD;
+//		adc_L.setup.hdma_adc.Init.MemDataAlignment = DMA_MDATAALIGN_HALFWORD;
+//		adc_L.setup.hdma_adc.Init.Mode = DMA_CIRCULAR;
+//		adc_L.setup.hdma_adc.Init.Priority = DMA_PRIORITY_LOW;
+//		if (HAL_DMA_Init(&(adc_L.setup.hdma_adc)) != HAL_OK)
+//		{
+//			error_handler();
+//		}
+//
+//		__HAL_LINKDMA(hadc,DMA_Handle,adc_L.setup.hdma_adc);
+//
+//		/* USER CODE BEGIN ADC3_MspInit 1 */
+//
+//		/* USER CODE END ADC3_MspInit 1 */
+//	}
 }
 
 void HAL_ADC_MspDeInit(ADC_HandleTypeDef* hadc)

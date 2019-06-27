@@ -24,10 +24,38 @@ volatile int8_t status;
 int16_t speeds[2];
 IWDG_HandleTypeDef hiwdg;
 
+// testing!!!!!!!!!!!!!!!!
+#define BUZZER_START_DEBUG
+
 #ifdef DEBUG
 extern struct ADC adc_L;
 extern struct ADC adc_R;
 #endif
+
+/* Results from unhacked onboard serial @ 115200
+pi@hoverbot-01:~ $ screen /dev/ttyS0 115200
+
+����@B���@@B@B@@��p�@
+
+
+NvmDatPac OK!
+
+IMU init done!
+
+***************************Copyright (c)******************************
+*                                                                    *
+*                 Hangzhou CHIC Technology Co.,LTD.                  *
+*                                                                    *
+*                                �Ϸ��汾                            *
+*                                SmartGeneral_V1.0                   *
+*                                ST&GD        CLB                    *
+*                                HW:v1.2    [Autotest]               *
+*                                BatType: Normal                     *
+*                                B2                                  *
+*                                FOC-Single shunt resistor           *
+*                                Master Oct 10 2016  13:48:50        *
+**********************************************************************Firmware is checked!
+*/
 
 
 /* MAIN
@@ -44,14 +72,14 @@ int main(void)
 	MX_IWDG_Init();
 
 	// power everything
-	button_init();
+//	button_init();
 	buzzer_init();
 	#ifdef BUZZER_START_DEBUG
 	buzzer_one_beep();
 	#endif
-	charging_init();
-	led_init();
-	led_set(1);
+//	charging_init();
+//	led_init();
+//	led_set(1);
 
 	MX_USART2_UART_Init();
 	adcs_setup_and_init();
@@ -116,16 +144,16 @@ static void receive_data() {
 static void transmit_data() {
 	float data_v;
 	data_v = get_battery_volt();
-
-#if defined(DEBUG) && !defined(DEBUG_NO_ADC)
-	//TODO: These readings are not in amps, needs work.
-	float data_i_L, data_i_R;
-	data_i_L = get_motor_current(&adc_L);
-	data_i_R = get_motor_current(&adc_R);
-	sprintf((char *)&uart.TX_buffer[0],"[%d, %d, %d, %d]\n", status, (int)data_v, (int)data_i_L, (int)data_i_R);
-#else
-	sprintf((char *)&uart.TX_buffer[0],"[%d, %d]\n", status, (int)data_v);
-#endif
+//
+//#if defined(DEBUG) && !defined(DEBUG_NO_ADC)
+//	//TODO: These readings are not in amps, needs work.
+//	float data_i_L, data_i_R;
+//	data_i_L = get_motor_current(&adc_L);
+//	data_i_R = get_motor_current(&adc_R);
+//	sprintf((char *)&uart.TX_buffer[0],"[%d, %d, %d, %d]\r\n", status, (int)data_v, (int)data_i_L, (int)data_i_R);
+//#else
+	sprintf((char *)&uart.TX_buffer[0],"[%d, %d]\r\n", status, (int)data_v);
+//#endif
 
 	if (Uart_is_TX_free()) {
 		Uart_TX((char *)&uart.TX_buffer[0]);
@@ -157,12 +185,12 @@ static void check_power() {
 
 	/* don't move if we are charging
 	 */
-	if (is_charging()) {
-		SET_ERROR_BIT(status, STATUS_IS_CHARGING);
-		motors_stop();
-	} else {
-		CLR_ERROR_BIT(status, STATUS_IS_CHARGING);
-	}
+//	if (is_charging()) {
+//		SET_ERROR_BIT(status, STATUS_IS_CHARGING);
+//		motors_stop();
+//	} else {
+//		CLR_ERROR_BIT(status, STATUS_IS_CHARGING);
+//	}
 
 	last_pwr_time = HAL_GetTick();
 }

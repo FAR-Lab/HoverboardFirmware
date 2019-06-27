@@ -12,7 +12,7 @@ extern "C" {
 
 #include "stm32f1xx_hal.h"
 
-#define BUZZER_PIN GPIO_PIN_4
+#define BUZZER_PIN GPIO_PIN_15
 #define BUZZER_GPIO_PORT GPIOA
 #define LED_PIN GPIO_PIN_2
 #define LED_GPIO_PORT GPIOB

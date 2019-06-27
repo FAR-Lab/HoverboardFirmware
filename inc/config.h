@@ -22,11 +22,11 @@
 /* Disable ADC debuging when in DEBUG mode, temporary fix for issue #2
    https://github.com/isabellesimova/HoverboardFirmware/issues/2
 */
-//#define DEBUG_NO_ADC //comment out when not in use
+#define DEBUG_NO_ADC //comment out when not in use
 
 /* One beep at start
  */
-//#define BUZZER_START_DEBUG //comment out when not in use
+#define BUZZER_START_DEBUG //comment out when not in use
 
 /* Pick a mode for control - trapezoidal or sinusoidal. Trapezoidal is simpler
  * and works with less logic. Sinusoidal is more complex but works better at low speeds.
@@ -55,8 +55,8 @@
 #define L_POS_OFFSET 		5
 #define L_NEG_OFFSET 		2
 #define L_WHEEL_DIR 		1
-#define R_POS_OFFSET 		5
-#define R_NEG_OFFSET		2
+#define R_POS_OFFSET 		0
+#define R_NEG_OFFSET		3
 #define R_WHEEL_DIR 	   -1
 
 
@@ -70,7 +70,7 @@
 #define MAX_POWER_PERCENT 20
 
 /* CHECKING FREQUENCIES
- * The frequencies for various tasks - power hcecks, UART communication, heart beat check.
+ * The frequencies for various tasks - power checks, UART communication, heart beat check.
  */
 #define POWER_CHECK_PERIOD 5000 //ms
 #define TX_WAIT_PERIOD	  250   //ms

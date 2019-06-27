@@ -6,11 +6,13 @@
 #include "constants.h"
 #include "delay.h"
 #include "uart.h"
+#include "debug.h"
+#include "adc.h"
 
 extern IWDG_HandleTypeDef hiwdg;
 extern volatile struct UART uart;
 
-struct Motor motor_L;
+//struct Motor motor_L;
 struct Motor motor_R;
 
 extern volatile int8_t status;
@@ -30,9 +32,9 @@ static const int8_t REVERSE_HALL_LOOKUP[6][4] = {
 };
 
 static const uint32_t TIM_CHANNELS[3] = {
-		TIM_CHANNEL_1,
-		TIM_CHANNEL_2,
-		TIM_CHANNEL_3
+		TIM_CHANNEL_1, // [PA8  - W]
+		TIM_CHANNEL_2, // [PA9  - V]
+		TIM_CHANNEL_3  // [PA10 - U]
 };
 
 #if CONTROL_METHOD == SINUSOIDAL_CONTROL
@@ -87,34 +89,34 @@ static int in_range(int x);
  */
 void motors_setup_and_init() {
 	//motor L config
-	motor_L.setup.side = 'L';
-
-	motor_L.setup.htim_pwm.Instance = TIM8;
-	motor_L.setup.TIM_PWM_IRQn = TIM8_CC_IRQn;
-	motor_L.setup.htim_duty.Instance = TIM6;
-	motor_L.setup.TIM_DUTY_IRQn = TIM6_IRQn;
-	motor_L.setup.htim_speed.Instance = TIM4;
-	motor_L.setup.TIM_SPEED_IRQn = TIM4_IRQn;
-
-	motor_L.setup.HALL_PORT = GPIOB;
-	motor_L.setup.HALL_PINS[0] = GPIO_PIN_5;
-	motor_L.setup.HALL_PINS[1] = GPIO_PIN_6;
-	motor_L.setup.HALL_PINS[2] = GPIO_PIN_7;
-	motor_L.setup.EXTI_IRQn = EXTI9_5_IRQn;
-
-	motor_L.setup.OFFSET_POS_HALL = L_POS_OFFSET;
-	motor_L.setup.OFFSET_NEG_HALL = L_NEG_OFFSET;
-	motor_L.setup.OFFSET_DIR = L_WHEEL_DIR;
-
-	motor_L.setup.GPIO_LOW_PORTS[0] = GPIOA;
-	motor_L.setup.GPIO_LOW_CH_PINS[0] = GPIO_PIN_7;
-	motor_L.setup.GPIO_LOW_PORTS[1] = GPIOB;
-	motor_L.setup.GPIO_LOW_CH_PINS[1] = GPIO_PIN_0;
-	motor_L.setup.GPIO_LOW_PORTS[2] = GPIOB;
-	motor_L.setup.GPIO_LOW_CH_PINS[2] = GPIO_PIN_1;
-
-	motor_L.setup.GPIO_HIGH_PORT = GPIOC;
-	motor_L.setup.GPIO_HIGH_CH_PINS = GPIO_PIN_6|GPIO_PIN_7|GPIO_PIN_8;
+//	motor_L.setup.side = 'L';
+//
+//	motor_L.setup.htim_pwm.Instance = TIM8;
+//	motor_L.setup.TIM_PWM_IRQn = TIM8_CC_IRQn;
+//	motor_L.setup.htim_duty.Instance = TIM6;
+//	motor_L.setup.TIM_DUTY_IRQn = TIM6_IRQn;
+//	motor_L.setup.htim_speed.Instance = TIM4;
+//	motor_L.setup.TIM_SPEED_IRQn = TIM4_IRQn;
+//
+//	motor_L.setup.HALL_PORT = GPIOB;
+//	motor_L.setup.HALL_PINS[0] = GPIO_PIN_5;
+//	motor_L.setup.HALL_PINS[1] = GPIO_PIN_6;
+//	motor_L.setup.HALL_PINS[2] = GPIO_PIN_7;
+//	motor_L.setup.EXTI_IRQn = EXTI9_5_IRQn;
+//
+//	motor_L.setup.OFFSET_POS_HALL = L_POS_OFFSET;
+//	motor_L.setup.OFFSET_NEG_HALL = L_NEG_OFFSET;
+//	motor_L.setup.OFFSET_DIR = L_WHEEL_DIR;
+//
+//	motor_L.setup.GPIO_LOW_PORTS[0] = GPIOA;
+//	motor_L.setup.GPIO_LOW_CH_PINS[0] = GPIO_PIN_7;
+//	motor_L.setup.GPIO_LOW_PORTS[1] = GPIOB;
+//	motor_L.setup.GPIO_LOW_CH_PINS[1] = GPIO_PIN_0;
+//	motor_L.setup.GPIO_LOW_PORTS[2] = GPIOB;
+//	motor_L.setup.GPIO_LOW_CH_PINS[2] = GPIO_PIN_1;
+//
+//	motor_L.setup.GPIO_HIGH_PORT = GPIOC;
+//	motor_L.setup.GPIO_HIGH_CH_PINS = GPIO_PIN_6|GPIO_PIN_7|GPIO_PIN_8;
 
 
 	//motor R config
@@ -122,37 +124,37 @@ void motors_setup_and_init() {
 
 	motor_R.setup.htim_pwm.Instance = TIM1;
 	motor_R.setup.TIM_PWM_IRQn = TIM1_CC_IRQn;
-	motor_R.setup.htim_duty.Instance = TIM7;
-	motor_R.setup.TIM_DUTY_IRQn = TIM7_IRQn;
+	motor_R.setup.htim_duty.Instance = TIM4;
+	motor_R.setup.TIM_DUTY_IRQn = TIM4_IRQn;
 	motor_R.setup.htim_speed.Instance = TIM3;
 	motor_R.setup.TIM_SPEED_IRQn = TIM3_IRQn;
 
-	motor_R.setup.HALL_PORT = GPIOC;
-	motor_R.setup.HALL_PINS[0] = GPIO_PIN_10;
-	motor_R.setup.HALL_PINS[1] = GPIO_PIN_11;
-	motor_R.setup.HALL_PINS[2] = GPIO_PIN_12;
-	motor_R.setup.EXTI_IRQn = EXTI15_10_IRQn;
+	motor_R.setup.HALL_PORT = GPIOB;
+	motor_R.setup.HALL_PINS[0] = GPIO_PIN_6; // W
+	motor_R.setup.HALL_PINS[1] = GPIO_PIN_7; // V
+	motor_R.setup.HALL_PINS[2] = GPIO_PIN_8; // U
+	motor_R.setup.EXTI_IRQn = EXTI9_5_IRQn;
 
 	motor_R.setup.OFFSET_POS_HALL = R_POS_OFFSET;
 	motor_R.setup.OFFSET_NEG_HALL = R_NEG_OFFSET;
 	motor_R.setup.OFFSET_DIR = R_WHEEL_DIR;
 
 	motor_R.setup.GPIO_LOW_PORTS[0] = GPIOB;
-	motor_R.setup.GPIO_LOW_CH_PINS[0] = GPIO_PIN_13;
+	motor_R.setup.GPIO_LOW_CH_PINS[0] = GPIO_PIN_13; // W [0]
 	motor_R.setup.GPIO_LOW_PORTS[1] = GPIOB;
-	motor_R.setup.GPIO_LOW_CH_PINS[1] = GPIO_PIN_14;
+	motor_R.setup.GPIO_LOW_CH_PINS[1] = GPIO_PIN_14; // V [1]
 	motor_R.setup.GPIO_LOW_PORTS[2] = GPIOB;
-	motor_R.setup.GPIO_LOW_CH_PINS[2] = GPIO_PIN_15;
+	motor_R.setup.GPIO_LOW_CH_PINS[2] = GPIO_PIN_15; // U [2]
 
 	motor_R.setup.GPIO_HIGH_PORT = GPIOA;
-	motor_R.setup.GPIO_HIGH_CH_PINS = GPIO_PIN_8|GPIO_PIN_9|GPIO_PIN_10;
+	motor_R.setup.GPIO_HIGH_CH_PINS = GPIO_PIN_8|GPIO_PIN_9|GPIO_PIN_10; // W [0] - V [1] - U [2]
 
-	motor_init(&motor_L);
+//	motor_init(&motor_L);
 	motor_init(&motor_R);
 
 	//SETUP DUTY LOOKUP
 	int i;
-	double y = motor_L.uwPeriodValue * 0.01;
+	double y = motor_R.uwPeriodValue * 0.01;
 	for (i = 0; i < DUTY_STEPS; i++) {
 
 #if CONTROL_METHOD == SINUSOIDAL_CONTROL
@@ -183,21 +185,21 @@ void motors_setup_and_init() {
 /* Stop both motors.
  */
 void motors_stop() {
-	motor_stop(&motor_L);
+//	motor_stop(&motor_L);
 	motor_stop(&motor_R);
 }
 
 /* Calibrate the motors by doing both directions for both the wheels.
  */
 void motors_calibrate() {
-	HAL_NVIC_DisableIRQ(motor_L.setup.TIM_DUTY_IRQn);
-	HAL_NVIC_DisableIRQ(motor_L.setup.TIM_SPEED_IRQn);
+//	HAL_NVIC_DisableIRQ(motor_L.setup.TIM_DUTY_IRQn);
+//	HAL_NVIC_DisableIRQ(motor_L.setup.TIM_SPEED_IRQn);
 
-	HAL_NVIC_DisableIRQ(motor_R.setup.TIM_DUTY_IRQn);
-	HAL_NVIC_DisableIRQ(motor_R.setup.TIM_SPEED_IRQn);
+//	HAL_NVIC_DisableIRQ(motor_R.setup.TIM_DUTY_IRQn);
+//	HAL_NVIC_DisableIRQ(motor_R.setup.TIM_SPEED_IRQn);
 
-	motor_calibrate(&motor_L, 1, 0);
-	motor_calibrate(&motor_L, -1, 0);
+//	motor_calibrate(&motor_L, 1, 0);
+//	motor_calibrate(&motor_L, -1, 0);
 
 	motor_calibrate(&motor_R, 1, 0);
 	motor_calibrate(&motor_R, -1, 0);
@@ -206,7 +208,7 @@ void motors_calibrate() {
 /* Set the speed for both motors.
  */
 void motors_speeds(int16_t l_rpm, int16_t r_rpm) {
-	motor_speed(&motor_L, l_rpm);
+//	motor_speed(&motor_L, l_rpm);
 	motor_speed(&motor_R, r_rpm);
 }
 
@@ -251,12 +253,12 @@ void Duty_ISR_Callback(struct Motor *motor) {
  */
 void Speed_ISR_Callback(struct Motor *motor) {
 	// if no new data in a second, stop!!
-	if (HAL_GetTick() - last_rx_time > HEARTBEAT_PERIOD) {
-		motor_stop(motor);
-		SET_ERROR_BIT(status, STATUS_HEARTBEAT_MISSING);
-	} else {
-		CLR_ERROR_BIT(status, STATUS_HEARTBEAT_MISSING);
-	}
+//	if (HAL_GetTick() - last_rx_time > HEARTBEAT_PERIOD) {
+//		motor_stop(motor);
+//		SET_ERROR_BIT(status, STATUS_HEARTBEAT_MISSING);
+//	} else {
+//		CLR_ERROR_BIT(status, STATUS_HEARTBEAT_MISSING);
+//	}
 
 	if (motor->stop) {
 		return;
@@ -410,11 +412,149 @@ static void motor_speed(struct Motor *motor, int16_t rpm) {
 
 }
 
+
+TIM_HandleTypeDef testTim;
+
+//static void MX_GPIO_Init(void) {
+//	GPIO_InitTypeDef GPIO_InitStruct;
+//
+//	__HAL_RCC_GPIOA_CLK_ENABLE();
+//
+//	GPIO_InitStruct.Pin = GPIO_PIN_8|GPIO_PIN_9|GPIO_PIN_10;
+//	GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
+//	GPIO_InitStruct.Pull = GPIO_NOPULL;
+//	GPIO_InitStruct.Speed = GPIO_SPEED_HIGH;
+////	GPIO_InitStruct.Alternate = GPIO_AF1_TIM1;
+//
+//	HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+//}
+//static void MX_TIM1_Init(void) {
+//	TIM_ClockConfigTypeDef sClockSourceConfig;
+//	TIM_MasterConfigTypeDef sMasterConfig;
+//	TIM_OC_InitTypeDef sConfigOC;
+//
+//	__HAL_RCC_TIM1_CLK_ENABLE();
+//
+//	testTim.Instance = TIM1;
+//	testTim.Init.Period = 3906;
+//	testTim.Init.Prescaler = 15;
+//	testTim.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
+//	testTim.Init.CounterMode = TIM_COUNTERMODE_UP;
+//
+//	if (HAL_TIM_Base_Init(&testTim) != HAL_OK) {
+//		buzzer_two_beeps();
+//	}
+//
+//	sClockSourceConfig.ClockSource = TIM_CLOCKSOURCE_INTERNAL;
+//	if (HAL_TIM_ConfigClockSource(&testTim, &sClockSourceConfig) != HAL_OK) {
+//		buzzer_two_beeps();
+//	}
+//
+//	if (HAL_TIM_PWM_Init(&testTim) != HAL_OK) {
+//		buzzer_two_beeps();
+//	}
+//
+//	sMasterConfig.MasterOutputTrigger = TIM_TRGO_RESET;
+//	sMasterConfig.MasterSlaveMode = TIM_MASTERSLAVEMODE_DISABLE;
+//	if (HAL_TIMEx_MasterConfigSynchronization(&testTim, &sMasterConfig) != HAL_OK) {
+//		buzzer_two_beeps();
+//	}
+//
+//	sConfigOC.OCMode = TIM_OCMODE_PWM1;
+//	sConfigOC.Pulse = 1953;
+//	sConfigOC.OCPolarity = TIM_OCPOLARITY_HIGH;
+//	sConfigOC.OCFastMode = TIM_OCFAST_DISABLE;
+//	if (HAL_TIM_PWM_ConfigChannel(&testTim, &sConfigOC, TIM_CHANNEL_1) != HAL_OK) {
+//		buzzer_two_beeps();
+//	}
+//}
+
+#define MSG(...) while (!Uart_is_TX_free()); sprintf((char *) &uart.TX_buffer[0], __VA_ARGS__); Uart_TX((char *) &uart.TX_buffer[0]);
+#define MIN(a, b) ((a<b)?a:b)
+
+static void iwdg_delay(uint32_t mSecs) {
+	while (mSecs > 0) {
+		HAL_IWDG_Refresh(&hiwdg);    // 819 ms
+		delay_ms(MIN(500, mSecs));
+		mSecs -= MIN(500, mSecs);
+	}
+}
+
 /* Calibrate a wheel by slowly increasing the pwm duty cycle until it moves just enough.
  */
 static void motor_calibrate(struct Motor *motor, int8_t calibration_dir, uint8_t power) {
 
 	HAL_IWDG_Refresh(&hiwdg);   //819mS
+
+//	MX_TIM1_Init();
+//	MX_GPIO_Init();
+//
+//	if (HAL_TIM_Base_Start(&testTim) != HAL_OK) {
+//		buzzer_two_beeps();
+//	}
+//	if (HAL_TIM_PWM_Start(&testTim, TIM_CHANNEL_1) != HAL_OK) {
+//		buzzer_two_beeps();
+//	}
+//
+//	while (1) {
+//		__HAL_TIM_SetCompare(&testTim, TIM_CHANNEL_1, 1000);
+//		for (int i = 0; i < 4; i++) {
+//			delay_ms(500);
+//			HAL_IWDG_Refresh(&hiwdg);   //819mS
+//		}
+//		while (!Uart_is_TX_free());
+//		sprintf((char *) &uart.TX_buffer[0], "TIM1 count is %lu\r\n", TIM1->CNT);
+//		Uart_TX((char *) &uart.TX_buffer[0]);
+//		__HAL_TIM_SetCompare(&testTim, TIM_CHANNEL_1, 3000);
+//		for (int i = 0; i < 4; i++) {
+//			delay_ms(500);
+//			HAL_IWDG_Refresh(&hiwdg);   //819mS
+//		}
+//		while (!Uart_is_TX_free());
+//		sprintf((char *) &uart.TX_buffer[0], "TIM1 count is %lu\r\n", TIM1->CNT);
+//		Uart_TX((char *) &uart.TX_buffer[0]);
+//	}
+
+
+//	motor_low_off(motor, 0);
+//	motor_low_off(motor, 1);
+//	motor_low_off(motor, 2);
+//	motor_high_off(motor, 0);
+//	motor_high_off(motor, 1);
+//	motor_high_off(motor, 2);
+//	buzzer_one_beep();
+
+//	delay_ms(500);
+
+//	HAL_IWDG_Refresh(&hiwdg);   //819mS
+//
+//	int i, pwr;
+//	int delay = 20;
+//
+////	motor_low_on(motor, 0);
+////	motor_high_on(motor, 1);
+//
+//	motor_high_on(motor, 0);
+//	for (pwr = 5; pwr < 100; pwr += 5) {
+//		for (i = 0; i < 10; i++) {
+//			motor_set_pwm(motor, 0, pwr);
+//			delay_ms(delay);
+//			HAL_IWDG_Refresh(&hiwdg);   //819mS
+//		}
+////		buzzer_two_beeps();
+////		motor_high_off(motor, 1);
+//		delay_ms(delay);
+//
+//		while (!Uart_is_TX_free());
+//		sprintf((char *) &uart.TX_buffer[0], "power: %d; TIM1: %lu, TIM3: %lu, TIM4: %lu\r\n", pwr,
+//				motor->setup.htim_pwm.Instance->CNT, motor->setup.htim_speed.Instance->CNT, motor->setup.htim_duty.Instance->CNT);
+//		Uart_TX((char *) &uart.TX_buffer[0]);
+//	}
+//	motor_high_off(motor, 0);
+
+//	motor_low_off(motor, 0);
+//	motor_high_off(motor, 1);
+
 
 	uint8_t calibrate_positions[NUM_PHASES];
 	int i, j, offset_dir;
@@ -427,12 +567,12 @@ static void motor_calibrate(struct Motor *motor, int8_t calibration_dir, uint8_t
 	motor_high_off(motor, 1);
 	motor_high_off(motor, 2);
 
+//	MSG("START WITH ODR %04lx\r\n", GPIOB->ODR);
+
 	// oh god something is broken why is the power ramping up so high, emergency exit
-	if (power > 100) {
+	if (power > 200) {
 		motor_set_pwm_all(motor, 0);
-		while (!Uart_is_TX_free());
-		sprintf((char *) &uart.TX_buffer[0], "max limited power reached, probably something is wrong\n");
-		Uart_TX((char *) &uart.TX_buffer[0]);
+		MSG("max limited power reached, probably something is wrong\r\n");
 		return;
 	}
 
@@ -440,10 +580,15 @@ static void motor_calibrate(struct Motor *motor, int8_t calibration_dir, uint8_t
 
 	//let it warm up through the first cycle
 	for (i = 0; i < 2; i++) {
+		MSG("cycle %d\r\n", i);
 
 		// go through all the phases
 		for (j = 0; j < NUM_PHASES; j++) {
 			HAL_IWDG_Refresh(&hiwdg);   //819mS
+			MSG("PH%d (ch %d,%d), pwr %d pos %d", j,
+					REVERSE_HALL_LOOKUP[in_range(calibration_dir * j)][0],
+					REVERSE_HALL_LOOKUP[in_range(calibration_dir * j)][2],
+					power, motor_get_position(motor));
 
 			motor_high_off(motor, REVERSE_HALL_LOOKUP[in_range(calibration_dir * (j - 1))][0]);
 			motor_low_off(motor, REVERSE_HALL_LOOKUP[in_range(calibration_dir * (j - 1))][2]);
@@ -451,11 +596,13 @@ static void motor_calibrate(struct Motor *motor, int8_t calibration_dir, uint8_t
 			motor_high_on(motor, REVERSE_HALL_LOOKUP[in_range(calibration_dir * j)][0]);
 			motor_low_on(motor, REVERSE_HALL_LOOKUP[in_range(calibration_dir * j)][2]);
 
-			delay_ms(delay);
+			iwdg_delay(delay);
 			calibrate_positions[j] = motor_get_position(motor);
+			MSG(" -> pos %d, %.2emA %.2fV\r\n", calibrate_positions[j], get_motor_current(), get_battery_volt());
 		}
 
 		offset_dir = calibrate_positions[0] - calibrate_positions[NUM_PHASES - 1];
+		MSG("offset found? %d\r\n", offset_dir);
 
 		// didn't really move, ramp up power
 		if (offset_dir == 0) {
@@ -493,7 +640,7 @@ static void motor_calibrate(struct Motor *motor, int8_t calibration_dir, uint8_t
 	}
 
 	while (!Uart_is_TX_free());
-	sprintf((char *) &uart.TX_buffer[0], "%c%+d: %d\n", motor->setup.side, offset_dir, in_range(-calibrate_positions[NUM_PHASES - 1]));
+	sprintf((char *) &uart.TX_buffer[0], "%c%+d: %d\r\n", motor->setup.side, offset_dir, in_range(-calibrate_positions[NUM_PHASES - 1]));
 	Uart_TX((char *) &uart.TX_buffer[0]);
 }
 
@@ -555,8 +702,8 @@ static void motor_HallSensor_init(struct Motor *motor) {
 	/* GPIO Ports Clock Enable */
 	if (motor->setup.HALL_PORT == GPIOB)
 		__HAL_RCC_GPIOB_CLK_ENABLE();
-	else if (motor->setup.HALL_PORT == GPIOC)
-		__HAL_RCC_GPIOC_CLK_ENABLE();
+//	else if (motor->setup.HALL_PORT == GPIOC)
+//		__HAL_RCC_GPIOC_CLK_ENABLE();
 
 	/*Configure GPIO pins : HALL_LEFT_A_PIN HALL_LEFT_B_PIN HALL_LEFT_C_PIN */
 	GPIO_InitStruct.Pin = motor->setup.HALL_PINS[0]|motor->setup.HALL_PINS[1]|motor->setup.HALL_PINS[2];
@@ -577,10 +724,12 @@ static void motor_TIM_PWM_init(struct Motor *motor) {
 	TIM_OC_InitTypeDef sConfigOC;
 	TIM_BreakDeadTimeConfigTypeDef sBreakDeadTimeConfig;
 
-	if (motor->setup.htim_pwm.Instance == TIM8)
-		__HAL_RCC_TIM8_CLK_ENABLE();
-	else if (motor->setup.htim_pwm.Instance == TIM1)
+	if (motor->setup.htim_pwm.Instance == TIM1)
 		__HAL_RCC_TIM1_CLK_ENABLE();
+	else
+		buzzer_two_beeps();
+//	else if (motor->setup.htim_pwm.Instance == TIM1)
+//		__HAL_RCC_TIM1_CLK_ENABLE();
 
 	__HAL_RCC_GPIOA_CLK_ENABLE();
 	__HAL_RCC_GPIOB_CLK_ENABLE();
@@ -595,10 +744,10 @@ static void motor_TIM_PWM_init(struct Motor *motor) {
 
 	motor->uwPeriodValue = (uint32_t) ((SystemCoreClock / PWM_MOTOR) - 1);
 
-	//PULLUPS
+	// Low-side gates
 	GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
 	GPIO_InitStruct.Speed = GPIO_SPEED_HIGH;
-	GPIO_InitStruct.Pull = GPIO_PULLUP;
+	GPIO_InitStruct.Pull = GPIO_NOPULL;
 	GPIO_InitStruct.Pin = motor->setup.GPIO_LOW_CH_PINS[0];
 	HAL_GPIO_Init(motor->setup.GPIO_LOW_PORTS[0], &GPIO_InitStruct);
 	GPIO_InitStruct.Pin = motor->setup.GPIO_LOW_CH_PINS[1];
@@ -606,10 +755,10 @@ static void motor_TIM_PWM_init(struct Motor *motor) {
 	GPIO_InitStruct.Pin = motor->setup.GPIO_LOW_CH_PINS[2];
 	HAL_GPIO_Init(motor->setup.GPIO_LOW_PORTS[2], &GPIO_InitStruct);
 
-	//PULLDOWNS
-	GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
+	// High-side gates
+	GPIO_InitStruct.Mode = GPIO_MODE_AF_PP; // TIM1 channels are Alternate Functions
 	GPIO_InitStruct.Speed = GPIO_SPEED_HIGH;
-	GPIO_InitStruct.Pull = GPIO_PULLDOWN;
+	GPIO_InitStruct.Pull = GPIO_NOPULL;
 	GPIO_InitStruct.Pin = motor->setup.GPIO_HIGH_CH_PINS;
 	HAL_GPIO_Init(motor->setup.GPIO_HIGH_PORT, &GPIO_InitStruct);
 
@@ -617,7 +766,7 @@ static void motor_TIM_PWM_init(struct Motor *motor) {
 	motor->setup.htim_pwm.Init.Period            = motor->uwPeriodValue;
 	motor->setup.htim_pwm.Init.ClockDivision     = 0;
 	motor->setup.htim_pwm.Init.CounterMode       = TIM_COUNTERMODE_UP;
-	motor->setup.htim_pwm.Init.RepetitionCounter = 0;
+//	motor->setup.htim_pwm.Init.RepetitionCounter = 0;
 	HAL_TIM_PWM_Init(&(motor->setup.htim_pwm));
 
 	sBreakDeadTimeConfig.AutomaticOutput = TIM_AUTOMATICOUTPUT_DISABLE; //TIM_AUTOMATICOUTPUT_ENABLE; //
@@ -629,13 +778,12 @@ static void motor_TIM_PWM_init(struct Motor *motor) {
 	sBreakDeadTimeConfig.DeadTime = 40;   //10;
 	HAL_TIMEx_ConfigBreakDeadTime(&(motor->setup.htim_pwm), &sBreakDeadTimeConfig);
 
-
 	//##-2- Configure the PWM channels #########################################
 	// Common configuration for all channels
 	sConfigOC.OCMode      = TIM_OCMODE_PWM1; // TIM_OCMODE_PWM2;
 	sConfigOC.OCFastMode  = TIM_OCFAST_DISABLE; // TIM_OCFAST_DISABLE;
-	sConfigOC.OCPolarity  = TIM_OCPOLARITY_HIGH; //TIM_OCPOLARITY_LOW;//TIM_OCPOLARITY_HIGH; //TIM_OCPOLARITY_LOW;
-	sConfigOC.OCNPolarity = TIM_OCNPOLARITY_LOW; //TIM_OCNPOLARITY_HIGH; //TIM_OCNPOLARITY_HIGH;
+	sConfigOC.OCPolarity  = TIM_OCPOLARITY_LOW; //TIM_OCPOLARITY_LOW;//TIM_OCPOLARITY_HIGH; //TIM_OCPOLARITY_LOW;
+	sConfigOC.OCNPolarity = TIM_OCNPOLARITY_HIGH; //TIM_OCNPOLARITY_HIGH; //TIM_OCNPOLARITY_HIGH;
 	sConfigOC.OCIdleState = TIM_OCIDLESTATE_RESET; //TIM_OCIDLESTATE_SET; //TIM_OCNIDLESTATE_RESET; //TIM_OCIDLESTATE_SET;
 	sConfigOC.OCNIdleState= TIM_OCNIDLESTATE_RESET; //TIM_OCNIDLESTATE_SET ; //TIM_OCIDLESTATE_SET; //TIM_OCNIDLESTATE_RESET;
 
@@ -669,10 +817,12 @@ static void motor_TIM_PWM_init(struct Motor *motor) {
  * 16 times per commutation phase.
  */
 static void motor_TIM_Duty_init(struct Motor *motor) {
-	if (motor->setup.htim_duty.Instance == TIM6)
-		__HAL_RCC_TIM6_CLK_ENABLE();
-	else if (motor->setup.htim_duty.Instance == TIM7)
-		__HAL_RCC_TIM7_CLK_ENABLE();
+	if (motor->setup.htim_duty.Instance == TIM4)
+		__HAL_RCC_TIM4_CLK_ENABLE();
+	else
+		buzzer_two_beeps();
+//	else if (motor->setup.htim_duty.Instance == TIM7)
+//		__HAL_RCC_TIM7_CLK_ENABLE();
 
 	// wait until the the next event to update the preload shadow register
 	motor->setup.htim_duty.Init.Prescaler = (uint32_t) ((SystemCoreClock / 1000000) - 1);// instructions per microsecond
@@ -690,8 +840,10 @@ static void motor_TIM_Duty_init(struct Motor *motor) {
 static void motor_TIM_Speed_init(struct Motor *motor) {
 	if (motor->setup.htim_speed.Instance == TIM3)
 		__HAL_RCC_TIM3_CLK_ENABLE();
-	else if (motor->setup.htim_speed.Instance == TIM4)
-		__HAL_RCC_TIM4_CLK_ENABLE();
+	else
+		buzzer_two_beeps();
+//	else if (motor->setup.htim_speed.Instance == TIM4)
+//		__HAL_RCC_TIM4_CLK_ENABLE();
 
 	motor->setup.htim_speed.Instance->CR1 = motor->setup.htim_speed.Instance->CR1 | TIM_CR1_ARPE_Msk;
 	motor->setup.htim_speed.Init.Prescaler = (uint32_t) ((SystemCoreClock / 1000000) - 1); // instructions per microsecond
@@ -707,15 +859,26 @@ static void motor_TIM_Speed_init(struct Motor *motor) {
 // ----------------------PRIVATE----------------------
 // mosfet functions
 
+// track state to avoid shorts?
+int upper[] = {0, 0, 0};
+int lower[] = {0, 0, 0};
+
 /* Turn on the lower mosfet of the half bridge of the corresponding channel.
  */
 static void motor_low_on(struct Motor *motor, uint8_t channel) {
+	if (upper[channel] == 1) {
+		buzzer_two_beeps();
+		error_handler();
+		return;
+	}
+	lower[channel] = 1;
 	(motor->setup.GPIO_LOW_PORTS[channel])->BSRR = ((uint32_t) motor->setup.GPIO_LOW_CH_PINS[channel]) << 16;
 }
 
 /* Turn off the lower mosfet of the half bridge of the corresponding channel.
  */
 static void motor_low_off(struct Motor *motor, uint8_t channel) {
+	lower[channel] = 0;
 	(motor->setup.GPIO_LOW_PORTS[channel])->BSRR = motor->setup.GPIO_LOW_CH_PINS[channel];
 }
 
@@ -723,6 +886,12 @@ static void motor_low_off(struct Motor *motor, uint8_t channel) {
  * (By enabling the comparing for the PWM)/
  */
 static void motor_high_on(struct Motor *motor, uint8_t channel) {
+	if (lower[channel] == 1) {
+		buzzer_two_beeps();
+		error_handler();
+		return;
+	}
+	upper[channel] = 1;
 	motor->setup.htim_pwm.Instance->CCER = motor->setup.htim_pwm.Instance->CCER | (1 << (channel * 4));  //--> CCXE = 1
 }
 
@@ -730,6 +899,7 @@ static void motor_high_on(struct Motor *motor, uint8_t channel) {
  * (By disabling the comparing for the PWM)
  */
 static void motor_high_off(struct Motor *motor, uint8_t channel) {
+	upper[channel] = 0;
 	motor->setup.htim_pwm.Instance->CCER = motor->setup.htim_pwm.Instance->CCER & ~(1 << (channel * 4));  //--> CCXE = 0
 }
 

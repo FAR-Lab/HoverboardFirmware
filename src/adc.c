@@ -6,8 +6,9 @@
  */
 
 #include "adc.h"
+#include "debug.h"
 
-struct ADC adc_L;
+//struct ADC adc_L;
 struct ADC adc_R;
 
 static int battery_voltage;
@@ -24,16 +25,16 @@ static uint16_t adc_motor(struct ADC *adc);
 void adcs_setup_and_init() {
 	adc_R.setup.hadc.Instance = ADC1;
 	adc_R.setup.DMA_Channel_IRQn = DMA1_Channel1_IRQn;
-	adc_R.setup.channel = ADC_CHANNEL_11;
+	adc_R.setup.channel = ADC_CHANNEL_6; // ADC_CHANNEL_11;
 	adc_R.setup.conversions = 2;
 
-	adc_L.setup.hadc.Instance = ADC3;
-	adc_L.setup.DMA_Channel_IRQn = DMA2_Channel4_5_IRQn;
-	adc_L.setup.channel = ADC_CHANNEL_10;
-	adc_L.setup.conversions = 1;
+//	adc_L.setup.hadc.Instance = ADC3;
+//	adc_L.setup.DMA_Channel_IRQn = DMA2_Channel4_5_IRQn;
+//	adc_L.setup.channel = ADC_CHANNEL_10;
+//	adc_L.setup.conversions = 1;
 
 	adc_init(&adc_R);
-	adc_init(&adc_L);
+//	adc_init(&adc_L);
 }
 
 /* Return a rolling average of the battery voltage (last 16 samples).
@@ -47,7 +48,8 @@ float get_battery_volt(void) {
 
 /* Return a rolling average of the motor current (last 16 samples).
  */
-float get_motor_current(struct ADC *adc) {
+float get_motor_current() {
+	struct ADC *adc = &adc_R;
 	//rolling average, fixed point, everything *16
 	adc->avg_current -= adc->avg_current / ROLLING_SAMPLES;
 	adc->avg_current += adc_motor(adc);
@@ -64,8 +66,8 @@ static void adc_init(struct ADC *adc) {
 
 	if (adc->setup.hadc.Instance == ADC1) { // right ADC
 		__HAL_RCC_DMA1_CLK_ENABLE();
-	} else if (adc->setup.hadc.Instance == ADC3) {
-		__HAL_RCC_DMA2_CLK_ENABLE();
+//	} else if (adc->setup.hadc.Instance == ADC3) {
+//		__HAL_RCC_DMA2_CLK_ENABLE();
 	}
 
 	adc->setup.hadc.Init.ScanConvMode = ADC_SCAN_ENABLE;
@@ -87,7 +89,7 @@ static void adc_init(struct ADC *adc) {
 
 	if (adc->setup.conversions == 2) {
 		// Configure channel for the battery
-		sConfig.Channel = ADC_CHANNEL_12;
+		sConfig.Channel = ADC_CHANNEL_1;
 		sConfig.Rank = 2;
 		if (HAL_ADC_ConfigChannel(&(adc->setup.hadc), &sConfig) != HAL_OK) {
 			error_handler();
@@ -131,8 +133,9 @@ static uint16_t adc_battery(void) {
 static uint16_t adc_motor(struct ADC *adc) {
 	uint16_t data = 0;
 	data = adc->data[0];
-	if (data == 0)
-		return adc_motor(adc);
+//	if (data == 0)
+//		buzzer_two_beeps();
+//		return adc_motor(adc);
 	return data;
 }
 

@@ -14,7 +14,7 @@ extern "C" {
 
 #include "stm32f1xx_hal.h"
 
-#define ADC_BATTERY_VOLT     0.02647435897435897435897435897436
+#define ADC_BATTERY_VOLT   (0.012890625)  // 0.02647435897435897435897435897436
 #define ROLLING_SAMPLES 16
 
 struct ADC_setup {
@@ -38,7 +38,7 @@ void adcs_setup_and_init(void);
 
 // ------------ROLLING_AVG----------------
 float get_battery_volt(void);
-float get_motor_current(struct ADC *adc);
+float get_motor_current(void);
 
 extern void error_handler(void);
 
