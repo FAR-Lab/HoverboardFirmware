@@ -123,8 +123,8 @@ static void adc_calibrate(struct ADC *adc) {
 static uint16_t adc_battery(void) {
 	uint16_t data = 0;
 	data = adc_R.data[1];
-	if (data == 0)
-		return adc_battery();
+//	if (data == 0)
+//		return adc_battery();
 	return data;
 }
 

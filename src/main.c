@@ -142,8 +142,9 @@ static void receive_data() {
  * In DEBUG mode, additional readings are outputted - current readings from the wheel.
  */
 static void transmit_data() {
-	float data_v;
+	float data_v, data_i;
 	data_v = get_battery_volt();
+	data_i = get_motor_current();
 //
 //#if defined(DEBUG) && !defined(DEBUG_NO_ADC)
 //	//TODO: These readings are not in amps, needs work.
@@ -152,7 +153,7 @@ static void transmit_data() {
 //	data_i_R = get_motor_current(&adc_R);
 //	sprintf((char *)&uart.TX_buffer[0],"[%d, %d, %d, %d]\r\n", status, (int)data_v, (int)data_i_L, (int)data_i_R);
 //#else
-	sprintf((char *)&uart.TX_buffer[0],"[%d, %d]\r\n", status, (int)data_v);
+	sprintf((char *)&uart.TX_buffer[0],"[%d, %.2eV, %.2emA]\r\n", status, data_v, data_i);
 //#endif
 
 	if (Uart_is_TX_free()) {
