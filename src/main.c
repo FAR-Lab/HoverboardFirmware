@@ -174,7 +174,7 @@ static void check_power() {
 	 * PA1 is detected high at ~2V in 3.3V system
 	 * voltage detected is 1/16 of battery voltage
 	 */
-	if (get_battery_volt() < 32) {
+	if (get_battery_volt() < 34) {
 		SET_ERROR_BIT(status, STATUS_LOW_BATTERY);
 		motors_stop();
 		buzzer_short_beep();

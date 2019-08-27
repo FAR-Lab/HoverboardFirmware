@@ -67,7 +67,7 @@
  * The wheel at max power goes REALLY fast. Most speeds can be achieved with <25%
  * the full power. Set a maximum of the power any wheel should reach.
  */
-#define MAX_POWER_PERCENT 20
+#define MAX_POWER_PERCENT 40
 
 /* CHECKING FREQUENCIES
  * The frequencies for various tasks - power checks, UART communication, heart beat check.
