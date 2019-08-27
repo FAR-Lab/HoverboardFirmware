@@ -5,7 +5,7 @@ This repository contains firmware to reflash the motor controller that comes wit
 ## Setup
 1. [Setup the hardware](doc/1_HardwareSetup.md) - connect the lines needed to communicate with the microcontroller on the hoverboard motor controller board to the ST-LINK.
 2. [ST-Link communication setup](doc/2_STLinkSetup.md) - make sure you can detect and communicate with the motor controller board from your computer via the ST device.
-3. [Configure Hoverbot](doc/3_Configuration.md) - calibrate the wheels (via flashing the microcontroller) and look through other configuration settings.
+3. ~~[Configure Hoverbot](doc/3_Configuration.md) - calibrate the wheels (via flashing the microcontroller) and look through other configuration settings.~~ (We did this already for our hoverboards, so no need to do it again!)
 4. [Run Hoverbot](doc/4_RunningHoverbot.md) - flash the microcontroller with the code that makes the bot move!
 
 Other setup guides:
