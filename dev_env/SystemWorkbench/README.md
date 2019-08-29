@@ -14,7 +14,7 @@ This is the easiest way I could find to set up the project - set up a blank ST p
         1) Keep Define new board
         2) Enter new board name: STM32F103
         3) Select board chip: STM32F1
-        4) Select mcu: STM32F103RCTx
+        4) Select mcu: STM32F103C8Tx
         5) Click OK
     2) Select the board you just made!
         1) Select Series: STM32F1
