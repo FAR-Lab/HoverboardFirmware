@@ -16,7 +16,6 @@ $ st-flash write build/hoverboard.bin 0x8000000
 ## Let's roll!
 Now that the firmware is set up, it's time to command the wheels to move! The ST is expecting commands over UART at a baud rate of 9600. Since the UART communication implements a variation of SLIP, commands should be **prefixed** and **postfixed** with any of the newline characters: \r or \n or \r\n.
 
-
 The command format is
 ```
 L[rpm],R[rpm]
@@ -27,6 +26,8 @@ More specifically,
 ```
 L(-)##(#),R(-)##(#)
 ```
+
+**In the FAR-lab version of Hoverbot, only the R value is used, and each motor board expects its own control sent with the R value.**
 
 Some examples of appropriate commands are:
 ```
