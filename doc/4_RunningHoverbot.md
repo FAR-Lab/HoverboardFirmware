@@ -11,7 +11,7 @@ $ make clean ; make
 $ st-flash write build/hoverboard.bin 0x8000000
 ```
 
-3. Done! Feel free to turn it on by pressing the on/off button.
+3. Done! Turn it on by wiring a jumper to the power cable. (See Chairbot Startup document for details.)
 
 ## Let's roll!
 Now that the firmware is set up, it's time to command the wheels to move! The ST is expecting commands over UART at a baud rate of 9600. Since the UART communication implements a variation of SLIP, commands should be **prefixed** and **postfixed** with any of the newline characters: \r or \n or \r\n.
